@@ -19,9 +19,9 @@
     }
 
     header {
+      padding: 65px 20px;
       background: #176b52;
       color: white;
-      padding: 65px 20px;
       text-align: center;
     }
 
@@ -37,13 +37,13 @@
 
     main {
       max-width: 1000px;
-      margin: auto;
+      margin: 0 auto;
       padding: 40px 20px;
     }
 
     .introduccion {
-      text-align: center;
       margin-bottom: 35px;
+      text-align: center;
     }
 
     .herramientas {
@@ -53,29 +53,34 @@
     }
 
     .tarjeta {
-      background: white;
       padding: 25px;
+      background: white;
       border-radius: 12px;
       box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
     }
 
     .tarjeta h2 {
-      color: #176b52;
       margin-top: 0;
+      color: #176b52;
     }
 
     .boton {
       display: inline-block;
       margin-top: 10px;
       padding: 11px 17px;
-      border-radius: 7px;
       background: #176b52;
       color: white;
       text-decoration: none;
+      border-radius: 7px;
     }
 
     .boton:hover {
       background: #10513e;
+    }
+
+    .boton-inactivo {
+      cursor: default;
+      opacity: 0.75;
     }
 
     footer {
@@ -116,8 +121,9 @@
           y control de equipos de medición.
         </p>
 
-        indicadores.htmlAbrir calculadora</a>
-     
+        ./indicadores.html
+          Abrir calculadora
+        </a>
       </article>
 
       <article class="tarjeta">
@@ -128,9 +134,9 @@
           requisitos y cálculo de emisiones.
         </p>
 
-        <a class="boton" href="#">
+        <span class="boton boton-inactivo">
           Próximamente
-        </a>
+        </span>
       </article>
 
       <article class="tarjeta">
@@ -141,9 +147,9 @@
           y oportunidades de mejora energética.
         </p>
 
-        <a class="boton" href="#">
+        <span class="boton boton-inactivo">
           Próximamente
-        </a>
+        </span>
       </article>
 
     </section>
