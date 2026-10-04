@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Calculadora gratuita de indicadores para sistemas de gestión."
+    >
+
+    <title>Calculadora de indicadores | NexoSIG</title>
+
+    <style>
+        :root {
+            --verde: #2f7059;
+            --verde-oscuro: #235441;
+            --verde-claro: #eaf4ef;
+            --fondo: #f4f7f5;
+            --blanco: #ffffff;
+            --texto: #263238;
+            --texto-secundario: #5f6b66;
+            --borde: #d9e2de;
+            --rojo: #b42318;
+            --rojo-claro: #feeceb;
+            --ambar: #9a6700;
+            --ambar-claro: #fff4ce;
+            --sombra: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--fondo);
+            color: var(--texto);
+            line-height: 1.5;
+        }
+
+        header {
+            background: var(--verde);
+            color: var(--blanco);
+            padding: 48px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0 0 10px;
+            font-size: clamp(42px, 10vw, 70px);
+        }
+
+        header p {
+            max-width: 720px;
+            margin: auto;
+            font-size: clamp(18px, 5vw, 26px);
+        }
+
+        main {
+            width: min(100% - 32px, 760px);
+            margin: 35px auto;
+        }
+
+        .introduccion {
+            margin-bottom: 28px;
+            text-align: center;
+        }
+
+        .introduccion h2 {
+            margin-bottom: 8px;
+            font-size: clamp(28px, 7vw, 40px);
+        }
+
+        .introduccion p {
+            margin: 0;
+            color: var(--texto-secundario);
+        }
+
+        .calculadora {
+            padding: 28px;
+            background: var(--blanco);
+            border-radius: 18px;
+            box-shadow: var(--sombra);
+        }
+
+        .campo {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-height: 50px;
+            padding: 12px 14px;
+            border: 1px solid var(--borde);
+            border-radius: 9px;
+            background: var(--blanco);
+            color: var(--texto);
+            font-size: 16px;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--verde);
+            outline: 3px solid rgba(47, 112, 89, 0.15);
+        }
+
+        .ayuda {
+            display: block;
+            margin-top: 7px;
+            color: var(--texto-secundario);
+            font-size: 14px;
+        }
+
+        .fila {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .botones {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 8px;
+        }
+
+        button {
+            min-height: 52px;
+            padding: 12px 20px;
+            border: 0;
+            border-radius: 9px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .boton-principal {
+            background: var(--verde);
+            color: var(--blanco);
+        }
+
+        .boton-principal:hover {
+            background: var(--verde-oscuro);
+        }
+
+        .boton-secundario {
+            border: 1px solid var(--borde);
+            background: var(--blanco);
+            color: var(--texto);
+        }
+
+        .resultado {
+            display: none;
+            margin-top: 28px;
+            padding: 24px;
+            border: 2px solid var(--verde);
+            border-radius: 14px;
+            background: var(--verde-claro);
+        }
+
+        .resultado.visible {
+            display: block;
+        }
+
+        .resultado h3 {
+            margin: 0 0 20px;
+            font-size: 25px;
+        }
+
+        .resultado-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .dato {
+            padding: 16px;
+            border-radius: 10px;
+            background: var(--blanco);
+        }
+
+        .dato span {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--texto-secundario);
+            font-size: 14px;
+        }
+
+        .dato strong {
+            font-size: 20px;
+        }
+
+        .estado {
+            grid-column: 1 / -1;
+            padding: 18px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .cumple {
+            background: var(--verde);
+            color: var(--blanco);
+        }
+
+        .nocumple {
+            background: var(--rojo-claro);
+            color: var(--rojo);
+        }
+
+        .advertencia {
+            background: var(--ambar-claro);
+            color: var(--ambar);
+        }
+
+        .mensaje-error {
+            display: none;
+            margin-bottom: 20px;
+            padding: 14px;
+            border-left: 5px solid var(--rojo);
+            border-radius: 6px;
+            background: var(--rojo-claro);
+            color: var(--rojo);
+            font-weight: 700;
+        }
+
+        .mensaje-error.visible {
+            display: block;
+        }
+
+        .nota {
+            margin-top: 25px;
+            padding: 18px;
+            border-left: 5px solid var(--verde);
+            border-radius: 6px;
+            background: var(--verde-claro);
+            color: var(--texto-secundario);
+            font-size: 14px;
+        }
+
+        footer {
+            margin-top: 45px;
+            padding: 28px 20px;
+            background: var(--verde-oscuro);
+            color: var(--blanco);
+            text-align: center;
+        }
+
+        footer p {
+            max-width: 760px;
+            margin: 5px auto;
+        }
+
+        @media (max-width: 600px) {
+            main {
+                width: min(100% - 20px, 760px);
+            }
+
+            .calculadora {
+                padding: 22px 18px;
+            }
+
+            .fila,
+            .botones,
+            .resultado-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .estado {
+                grid-column: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>NexoSIG</h1>
+    <p>Herramientas prácticas para sistemas de gestión</p>
+</header>
+
+<main>
+    <section class="introduccion">
+        <h2>Calculadora de indicadores</h2>
+
+        <p>
+            Comprueba el cumplimiento de objetivos de calidad,
+            medio ambiente y energía.
+        </p>
+    </section>
+
+    <section class="calculadora">
+
+        <div
+            id="mensajeError"
+            class="mensaje-error"
+            role="alert"
+        ></div>
+
+        <div class="campo">
+            <label for="nombreIndicador">
+                Nombre del indicador
+            </label>
+
+            <input
+                id="nombreIndicador"
+                type="text"
+                placeholder="Ejemplo: Consumo eléctrico"
+                maxlength="100"
+            >
+        </div>
+
+        <div class="fila">
+
+            <div class="campo">
+                <label for="valorReal">
+                    Valor alcanzado
+                </label>
+
+                <input
+                    id="valorReal"
+                    type="number"
+                    inputmode="decimal"
+                    step="any"
+                    placeholder="Ejemplo: 85"
+                >
+            </div>
+
+            <div class="campo">
+                <label for="valorObjetivo">
+                    Valor objetivo
+                </label>
+
+                <input
+                    id="valorObjetivo"
+                    type="number"
+                    inputmode="decimal"
+                    step="any"
+                    placeholder="Ejemplo: 90"
+                >
+            </div>
+
+        </div>
+
+        <div class="campo">
+            <label for="sentidoIndicador">
+                Criterio de evaluación
+            </label>
+
+            <select id="sentidoIndicador">
+                <option value="mayor">
+                    Cuanto mayor, mejor
+                </option>
+
+                <option value="menor">
+                    Cuanto menor, mejor
+                </option>
+            </select>
+
+            <span class="ayuda">
+                Ejemplo: satisfacción, mayor es mejor.
+                Consumo o incidencias, menor es mejor.
+            </span>
+        </div>
+
+        <div class="campo">
+            <label for="unidad">
+                Unidad de medida
+            </label>
+
+            <input
+                id="unidad"
+                type="text"
+                placeholder="Ejemplo: %, kWh, tCO₂e, nº"
+                maxlength="30"
+            >
+        </div>
+
+        <div class="botones">
+
+            <button
+                type="button"
+                class="boton-principal"
+                onclick="calcularIndicador()"
+            >
+                Calcular
+            </button>
+
+            <button
+                type="button"
+                class="boton-secundario"
+                onclick="limpiarCalculadora()"
+            >
+                Limpiar
+            </button>
+
+        </div>
+
+        <section
+            id="resultado"
+            class="resultado"
+            aria-live="polite"
+        >
+            <h3 id="tituloResultado">
+                Resultado
+            </h3>
+
+            <div class="resultado-grid">
+
+                <div class="dato">
+                    <span>Valor alcanzado</span>
+                    <strong id="resultadoReal">-</strong>
+                </div>
+
+                <div class="dato">
+                    <span>Valor objetivo</span>
+                    <strong id="resultadoObjetivo">-</strong>
+                </div>
+
+                <div class="dato">
+                    <span>Grado de cumplimiento</span>
+                    <strong id="porcentajeCumplimiento">-</strong>
+                </div>
+
+                <div class="dato">
+                    <span>Desviación frente al objetivo</span>
+                    <strong id="desviacion">-</strong>
+                </div>
+
+                <div
+                    id="estadoResultado"
+                    class="estado"
+                >
+                    -
+                </div>
+
+            </div>
+        </section>
+
+        <aside class="nota">
+            <strong>Criterio:</strong>
+            el resultado se considera conforme cuando alcanza o
+            supera el objetivo definido, según el sentido seleccionado.
+            La interpretación debe validarse de acuerdo con la ficha
+            y metodología de cada indicador.
+        </aside>
+
+    </section>
+</main>
+
+<footer>
+    <p><strong>NexoSIG</strong></p>
+
+    <p>
+        Herramienta orientativa. Los resultados no sustituyen
+        la evaluación técnica ni garantizan el cumplimiento de
+        requisitos legales, contractuales o normativos.
+    </p>
+</footer>
+
+<script>
+    function obtenerNumero(id) {
+        const valor = document
+            .getElementById(id)
+            .value
+            .trim()
+            .replace(",", ".");
+
+        return valor === "" ? NaN : Number(valor);
+    }
+
+    function formatearNumero(numero) {
+        return new Intl.NumberFormat("es-ES", {
+            maximumFractionDigits: 2
+        }).format(numero);
+    }
+
+    function mostrarError(mensaje) {
+        const mensajeError =
+            document.getElementById("mensajeError");
+
+        mensajeError.textContent = mensaje;
+        mensajeError.classList.add("visible");
+
+        document
+            .getElementById("resultado")
+            .classList.remove("visible");
+    }
+
+    function ocultarError() {
+        const mensajeError =
+            document.getElementById("mensajeError");
+
+        mensajeError.textContent = "";
+        mensajeError.classList.remove("visible");
+    }
+
+    function calcularIndicador() {
+        ocultarError();
+
+        const nombre =
+            document
+                .getElementById("nombreIndicador")
+                .value
+                .trim();
+
+        const valorReal = obtenerNumero("valorReal");
+        const valorObjetivo = obtenerNumero("valorObjetivo");
+
+        const sentido =
+            document.getElementById("sentidoIndicador").value;
+
+        const unidad =
+            document.getElementById("unidad").value.trim();
+
+        if (!Number.isFinite(valorReal)) {
+            mostrarError(
+                "Introduce un valor alcanzado válido."
+            );
+            return;
+        }
+
+        if (!Number.isFinite(valorObjetivo)) {
+            mostrarError(
+                "Introduce un valor objetivo válido."
+            );
+            return;
+        }
+
+        if (valorObjetivo === 0) {
+            mostrarError(
+                "El objetivo no puede ser cero porque impediría calcular el porcentaje de cumplimiento."
+            );
+            return;
+        }
+
+        let porcentaje;
+        let cumple;
+
+        if (sentido === "mayor") {
+            porcentaje =
+                (valorReal / valorObjetivo) * 100;
+
+            cumple = valorReal >= valorObjetivo;
+        } else {
+            if (valorReal === 0) {
+                porcentaje = valorObjetivo > 0 ? 100 : 0;
+            } else {
+                porcentaje =
+                    (valorObjetivo / valorReal) * 100;
+            }
+
+            cumple = valorReal <= valorObjetivo;
+        }
+
+        const desviacion =
+            valorReal - valorObjetivo;
+
+        const sufijoUnidad =
+            unidad === "" ? "" : " " + unidad;
+
+        document.getElementById(
+            "tituloResultado"
+        ).textContent =
+            nombre === ""
+                ? "Resultado del indicador"
+                : nombre;
+
+        document.getElementById(
+            "resultadoReal"
+        ).textContent =
+            formatearNumero(valorReal) + sufijoUnidad;
+
+        document.getElementById(
+            "resultadoObjetivo"
+        ).textContent =
+            formatearNumero(valorObjetivo) + sufijoUnidad;
+
+        document.getElementById(
+            "porcentajeCumplimiento"
+        ).textContent =
+            formatearNumero(porcentaje) + " %";
+
+        const signoDesviacion =
+            desviacion > 0 ? "+" : "";
+
+        document.getElementById(
+            "desviacion"
+        ).textContent =
+            signoDesviacion +
+            formatearNumero(desviacion) +
+            sufijoUnidad;
+
+        const estado =
+            document.getElementById("estadoResultado");
+
+        estado.className = "estado";
+
+        if (cumple) {
+            estado.textContent = "Objetivo cumplido";
+            estado.classList.add("cumple");
+        } else {
+            estado.textContent = "Objetivo no cumplido";
+            estado.classList.add("nocumple");
+        }
+
+        document
+            .getElementById("resultado")
+            .classList.add("visible");
+
+        document
+            .getElementById("resultado")
+            .scrollIntoView({
+                behavior: "smooth",
+                block: "nearest"
+            });
+    }
+
+    function limpiarCalculadora() {
+        document
+            .getElementById("nombreIndicador")
+            .value = "";
+
+        document
+            .getElementById("valorReal")
+            .value = "";
+
+        document
+            .getElementById("valorObjetivo")
+            .value = "";
+
+        document
+            .getElementById("sentidoIndicador")
+            .value = "mayor";
+
+        document
+            .getElementById("unidad")
+            .value = "";
+
+        ocultarError();
+
+        document
+            .getElementById("resultado")
+            .classList.remove("visible");
+
+        document
+            .getElementById("nombreIndicador")
+            .focus();
+    }
+
+    document.addEventListener("keydown", function(evento) {
+        if (evento.key === "Enter") {
+            calcularIndicador();
+        }
+    });
+</script>
+
+</body>
+</html>
