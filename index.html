@@ -14,13 +14,13 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f4f7f6;
+      background-color: #f4f7f6;
       color: #263238;
     }
 
     header {
       padding: 65px 20px;
-      background: #176b52;
+      background-color: #176b52;
       color: white;
       text-align: center;
     }
@@ -46,15 +46,28 @@
       text-align: center;
     }
 
+    .introduccion h2 {
+      margin-bottom: 20px;
+      font-size: 32px;
+    }
+
+    .introduccion p {
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
     .herramientas {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      grid-template-columns: repeat(
+        auto-fit,
+        minmax(230px, 1fr)
+      );
       gap: 20px;
     }
 
     .tarjeta {
       padding: 25px;
-      background: white;
+      background-color: white;
       border-radius: 12px;
       box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
     }
@@ -64,18 +77,25 @@
       color: #176b52;
     }
 
+    .tarjeta p {
+      line-height: 1.5;
+    }
+
     .boton {
       display: inline-block;
       margin-top: 10px;
       padding: 11px 17px;
-      background: #176b52;
-      color: white;
-      text-decoration: none;
+      border: none;
       border-radius: 7px;
+      background-color: #176b52;
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      cursor: pointer;
     }
 
     .boton:hover {
-      background: #10513e;
+      background-color: #10513e;
     }
 
     .boton-inactivo {
@@ -86,7 +106,7 @@
     footer {
       margin-top: 40px;
       padding: 25px 20px;
-      background: #263238;
+      background-color: #263238;
       color: white;
       text-align: center;
     }
@@ -97,23 +117,31 @@
 
   <header>
     <h1>NexoSIG</h1>
-    <p>Herramientas prácticas para sistemas de gestión</p>
+
+    <p>
+      Herramientas prácticas para sistemas de gestión
+    </p>
   </header>
 
   <main>
 
     <section class="introduccion">
-      <h2>Calidad, medio ambiente y energía</h2>
+
+      <h2>
+        Calidad, medio ambiente y energía
+      </h2>
 
       <p>
         Recursos gratuitos para facilitar el control,
         seguimiento y mejora de los sistemas de gestión.
       </p>
+
     </section>
 
     <section class="herramientas">
 
       <article class="tarjeta">
+
         <h2>Calidad</h2>
 
         <p>
@@ -121,12 +149,18 @@
           y control de equipos de medición.
         </p>
 
-        ./indicadores.html
+        <button
+          class="boton"
+          type="button"
+          onclick="abrirIndicadores()"
+        >
           Abrir calculadora
-        </a>
+        </button>
+
       </article>
 
       <article class="tarjeta">
+
         <h2>Medio ambiente</h2>
 
         <p>
@@ -134,12 +168,18 @@
           requisitos y cálculo de emisiones.
         </p>
 
-        <span class="boton boton-inactivo">
+        <button
+          class="boton boton-inactivo"
+          type="button"
+          disabled
+        >
           Próximamente
-        </span>
+        </button>
+
       </article>
 
       <article class="tarjeta">
+
         <h2>Energía</h2>
 
         <p>
@@ -147,9 +187,14 @@
           y oportunidades de mejora energética.
         </p>
 
-        <span class="boton boton-inactivo">
+        <button
+          class="boton boton-inactivo"
+          type="button"
+          disabled
+        >
           Próximamente
-        </span>
+        </button>
+
       </article>
 
     </section>
@@ -157,8 +202,16 @@
   </main>
 
   <footer>
-    <p>NexoSIG · Herramientas gratuitas para sistemas de gestión</p>
+    <p>
+      NexoSIG · Herramientas gratuitas para sistemas de gestión
+    </p>
   </footer>
+
+  <script>
+    function abrirIndicadores() {
+      window.location.href = "indicadores.html";
+    }
+  </script>
 
 </body>
 </html>
