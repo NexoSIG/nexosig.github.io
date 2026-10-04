@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="description"
+    content="Herramienta para definir indicadores de calidad."
+  >
+
+  <title>Definir indicador de calidad | NexoSIG</title>
+
+  <style>
+    :root {
+      --verde: #176b52;
+      --verde-oscuro: #10513e;
+      --verde-claro: #e8f3ef;
+      --texto: #263238;
+      --gris: #64716c;
+      --fondo: #f4f7f6;
+      --blanco: #ffffff;
+      --borde: #d7e0dc;
+      --rojo: #b42318;
+      --rojo-claro: #fef3f2;
+      --amarillo: #9a6700;
+      --amarillo-claro: #fff8e1;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+      color: var(--texto);
+      background: var(--fondo);
+    }
+
+    header {
+      padding: 45px 20px;
+      color: var(--blanco);
+      text-align: center;
+      background: var(--verde);
+    }
+
+    header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(30px, 6vw, 46px);
+    }
+
+    header p {
+      max-width: 750px;
+      margin: auto;
+      font-size: 18px;
+    }
+
+    main {
+      width: min(1100px, calc(100% - 24px));
+      margin: 24px auto 50px;
+    }
+
+    .barra {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .panel {
+      padding: 25px;
+      margin-bottom: 22px;
+      background: var(--blanco);
+      border-radius: 14px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      color: var(--verde);
+    }
+
+    .panel-intro {
+      margin-top: 0;
+      color: var(--gris);
+    }
+
+    .boton,
+    .enlace {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 11px 17px;
+      border: 0;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: bold;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .boton {
+      color: var(--blanco);
+      background: var(--verde);
+    }
+
+    .boton:hover,
+    .boton:focus {
+      background: var(--verde-oscuro);
+    }
+
+    .boton-secundario,
+    .enlace {
+      color: var(--verde);
+      background: var(--blanco);
+      border: 1px solid var(--verde);
+    }
+
+    .boton-secundario:hover,
+    .boton-secundario:focus,
+    .enlace:hover,
+    .enlace:focus {
+      background: var(--verde-claro);
+    }
+
+    .boton-borrar {
+      color: var(--rojo);
+      background: var(--blanco);
+      border: 1px solid #e7aaa6;
+    }
+
+    .boton-borrar:hover,
+    .boton-borrar:focus {
+      background: var(--rojo-claro);
+    }
+
+    .progreso {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+      margin: 20px 0 28px;
+    }
+
+    .marca-paso {
+      padding: 9px 5px;
+      color: #52605a;
+      font-size: 13px;
+      font-weight: bold;
+      text-align: center;
+      background: #e4e9e7;
+      border-radius: 7px;
+    }
+
+    .marca-paso.activa {
+      color: var(--blanco);
+      background: var(--verde);
+    }
+
+    .marca-paso.completa {
+      color: var(--verde-oscuro);
+      background: var(--verde-claro);
+    }
+
+    .paso {
+      display: none;
+    }
+
+    .paso.activo {
+      display: block;
+    }
+
+    .rejilla {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .campo {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ancho-completo {
+      grid-column: 1 / -1;
+    }
+
+    label,
+    legend {
+      font-weight: bold;
+    }
+
+    .obligatorio {
+      color: var(--rojo);
+    }
+
+    .ayuda {
+      color: var(--gris);
+      font-size: 13px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      color: var(--texto);
+      font: inherit;
+      background: var(--blanco);
+      border: 1px solid #aebbb6;
+      border-radius: 8px;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--verde);
+      outline: 3px solid rgba(23, 107, 82, 0.18);
+    }
+
+    .campo-error {
+      background: var(--rojo-claro);
+      border-color: var(--rojo);
+    }
+
+    .texto-error {
+      color: var(--rojo);
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    fieldset {
+      padding: 15px;
+      border: 1px solid var(--borde);
+      border-radius: 9px;
+    }
+
+    .comprobaciones {
+      display: grid;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .comprobacion {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      font-weight: normal;
+    }
+
+    .comprobacion input {
+      width: auto;
+      min-height: auto;
+      margin-top: 4px;
+    }
+
+    .navegacion {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .aviso {
+      padding: 14px;
+      margin-bottom: 18px;
+      color: #624600;
+      background: var(--amarillo-claro);
+      border-left: 5px solid var(--amarillo);
+      border-radius: 8px;
+    }
+
+    .oculto {
+      display: none !important;
+    }
+
+    #resultado {
+      display: none;
+    }
+
+    #resultado.visible {
+      display: block;
+    }
+
+    .estado {
+      display: inline-block;
+      padding: 8px 13px;
+      margin: 5px 0 17px;
+      font-weight: bold;
+      border-radius: 999px;
+    }
+
+    .estado-solido {
+      color: #176b3a;
+      background: #e7f6ec;
+    }
+
+    .estado-revision {
+      color: var(--amarillo);
+      background: var(--amarillo-claro);
+    }
+
+    .estado-insuficiente {
+      color: var(--rojo);
+      background: var(--rojo-claro);
+    }
+
+    .ficha {
+      overflow: hidden;
+      border: 1px solid var(--borde);
+      border-radius: 10px;
+    }
+
+    .fila-ficha {
+      display: grid;
+      grid-template-columns: minmax(180px, 28%) 1fr;
+      border-bottom: 1px solid var(--borde);
+    }
+
+    .fila-ficha:last-child {
+      border-bottom: 0;
+    }
+
+    .titulo-fila {
+      padding: 12px;
+      font-weight: bold;
+      background: #edf3f0;
+    }
+
+    .contenido-fila {
+      padding: 12px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .acciones {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    footer {
+      padding: 24px 20px;
+      color: var(--blanco);
+      text-align: center;
+      background: #263238;
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: calc(100% - 18px);
+        margin-top: 15px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .rejilla {
+        grid-template-columns: 1fr;
+      }
+
+      .ancho-completo {
+        grid-column: auto;
+      }
+
+      .progreso {
+        grid-template-columns: 1fr;
+      }
+
+      .marca-paso {
+        display: none;
+      }
+
+      .marca-paso.activa {
+        display: block;
+      }
+
+      .fila-ficha {
+        grid-template-columns: 1fr;
+      }
+
+      .titulo-fila {
+        border-bottom: 1px solid var(--borde);
+      }
+
+      .navegacion .boton {
+        flex: 1;
+      }
+    }
+
+    @media print {
+      header,
+      footer,
+      .barra,
+      #formularioPanel,
+      .acciones {
+        display: none !important;
+      }
+
+      body {
+        background: var(--blanco);
+      }
+
+      main {
+        width: 100%;
+        margin: 0;
+      }
+
+      .panel {
+        padding: 0;
+        box-shadow: none;
+      }
+
+      #resultado {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Definir indicador de calidad</h1>
+
+    <p>
+      Asistente para diseñar una ficha de indicador clara,
+      medible, útil y trazable.
+    </p>
+  </header>
+
+  <main>
+
+    <div class="barra">
+      index.html
+        ← Volver a NexoSIG
+      </a>
+
+      <button
+        class="boton boton-borrar"
+        type="button"
+        id="borrarSuperior"
+      >
+        Borrar formulario
+      </button>
+    </div>
+
+    <section class="panel" id="formularioPanel">
+
+      <h2>Asistente de definición</h2>
+
+      <p class="panel-intro">
+        Completa los cinco pasos. Los campos con asterisco son obligatorios.
+      </p>
+
+      <div class="progreso" aria-label="Progreso del formulario">
+
+        <div class="marca-paso activa" data-marca="1">
+          1. Finalidad
+        </div>
+
+        <div class="marca-paso" data-marca="2">
+          2. Diseño
+        </div>
+
+        <div class="marca-paso" data-marca="3">
+          3. Cálculo
+        </div>
+
+        <div class="marca-paso" data-marca="4">
+          4. Gestión
+        </div>
+
+        <div class="marca-paso" data-marca="5">
+          5. Validación
+        </div>
+
+      </div>
+
+      <form id="formulario" novalidate>
+
+        <!-- PASO 1 -->
+
+        <section class="paso activo" data-paso="1">
+
+          <div class="rejilla">
+
+            <div class="campo">
+              <label for="nombre">
+                Nombre del indicador
+                <span class="obligatorio">*</span>
+              </label>
+
+              <input
+                id="nombre"
+                type="text"
+                maxlength="120"
+                required
+                placeholder="Ej.: Entregables aceptados a la primera"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="codigo">
+                Código opcional
+              </label>
+
+              <input
+                id="codigo"
+                type="text"
+                maxlength="30"
+                placeholder="Ej.: CAL-01"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="proceso">
+                Proceso o actividad
+                <span class="obligatorio">*</span>
+              </label>
+
+              <input
+                id="proceso"
+                type="text"
+                maxlength="120"
+                required
+                placeholder="Ej.: Revisión de entregables"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="tipo">
+                Tipo de indicador
+                <span class="obligatorio">*</span>
+              </label>
+
+              <select id="tipo" required>
+                <option value="">Selecciona una opción</option>
+                <option>Resultado</option>
+                <option>Eficacia</option>
+                <option>Eficiencia</option>
+                <option>Calidad del producto o servicio</option>
+                <option>Satisfacción del cliente</option>
+                <option>Proveedores</option>
+                <option>No conformidades</option>
+                <option>Auditorías</option>
+                <option>Plazos</option>
+                <option>Coste de calidad</option>
+                <option>Otro</option>
+              </select>
+            </div>
+
+            <div class="campo ancho-completo">
+              <label for="finalidad">
+                Finalidad del indicador
+                <span class="obligatorio">*</span>
+              </label>
+
+              <textarea
+                id="finalidad"
+                maxlength="500"
+                required
+                placeholder="Describe qué se quiere conocer y por qué es relevante."
+              ></textarea>
+
+              <span class="ayuda">
+                Evita descripciones genéricas como “mejorar la calidad”.
+                Indica el resultado concreto que se quiere medir.
+              </span>
+            </div>
+
+            <div class="campo ancho-completo">
+              <label for="decision">
+                Decisión o actuación asociada
+                <span class="obligatorio">*</span>
+              </label>
+
+              <textarea
+                id="decision"
+                maxlength="400"
+                required
+                placeholder="Ej.: Priorizar acciones sobre los entregables con mayor necesidad de corrección."
+              ></textarea>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- PASO 2 -->
+
+        <section class="paso" data-paso="2">
+
+          <div class="rejilla">
+
+            <div class="campo">
+              <label for="naturaleza">
+                Naturaleza
+              </label>
+
+              <select id="naturaleza">
+                <option value="Informativo">Indicador informativo</option>
+                <option value="KPI">KPI con meta y umbrales</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="alcance">
+                Alcance
+                <span class="obligatorio">*</span>
+              </label>
+
+              <input
+                id="alcance"
+                type="text"
+                maxlength="220"
+                required
+                placeholder="Ej.: Todos los entregables revisados durante el periodo"
+              >
+            </div>
+
+            <div class="campo ancho-completo">
+              <label for="definicion">
+                Definición operativa
+                <span class="obligatorio">*</span>
+              </label>
+
+              <textarea
+                id="definicion"
+                maxlength="600"
+                required
+                placeholder="Define qué se incluye, cuándo se contabiliza y qué criterio se aplica."
+              ></textarea>
+            </div>
+
+            <div class="campo ancho-completo">
+              <label for="exclusiones">
+                Exclusiones y reglas especiales
+              </label>
+
+              <textarea
+                id="exclusiones"
+                maxlength="500"
+                placeholder="Ej.: Se excluyen los entregables cancelados antes de su revisión."
+              ></textarea>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- PASO 3 -->
+
+        <section class="paso" data-paso="3">
+
+          <div class="rejilla">
+
+            <div class="campo">
+              <label for="operacion">
+                Operación
+                <span class="obligatorio">*</span>
+              </label>
+
+              <select id="operacion" required>
+                <option value="">Selecciona una operación</option>
+                <option value="Recuento">Recuento</option>
+                <option value="Suma">Suma</option>
+                <option value="Media">Media</option>
+                <option value="Diferencia">Diferencia</option>
+                <option value="Porcentaje">Porcentaje</option>
+                <option value="Ratio">Ratio</option>
+                <option value="Tasa normalizada">Tasa normalizada</option>
+                <option value="Fórmula personalizada">
+                  Fórmula personalizada
+                </option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="unidadResultado">
+                Unidad del resultado
+                <span class="obligatorio">*</span>
+              </label>
+
+              <input
+                id="unidadResultado"
+                type="text"
+                maxlength="50"
+                required
+                placeholder="Ej.: %, días, incidencias/1.000 servicios"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="numerador">
+                Dato principal o numerador
+                <span class="obligatorio">*</span>
+              </label>
+
+              <input
+                id="numerador"
+                type="text"
+                maxlength="180"
+                required
+                placeholder="Ej.: Entregables aceptados sin correcciones"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="unidadNumerador">
+                Unidad del dato principal
+              </label>
+
+              <input
+                id="unidadNumerador"
+                type="text"
+                maxlength="50"
+                placeholder="Ej.: entregables"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="denominador">
+                Denominador
+              </label>
+
+              <input
+                id="denominador"
+                type="text"
+                maxlength="180"
+                placeholder="Ej.: Total de entregables revisados"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="unidadDenominador">
+                Unidad del denominador
+              </label>
+
+              <input
+                id="unidadDenominador"
+                type="text"
+                maxlength="50"
+                placeholder="Ej.: entregables"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="factor">
+                Factor de normalización
+              </label>
+
+              <input
+                id="factor"
+                type="number"
+                min="0"
+                step="any"
+                placeholder="Ej.: 100, 1.000 o 10.000"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="decimales">
+                Número de decimales
+              </label>
+
+              <select id="decimales">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+              </select>
+            </div>
+
+            <div class="campo ancho-completo">
+              <label for="formula">
+                Fórmula o método de cálculo
+                <span class="obligatorio">*</span>
+              </label>
+
+              <textarea
+                id="formula"
+                maxlength="500"
+                required
+                placeholder="La herramienta propondrá una fórmula. Puedes modificarla."
+              ></textarea>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- PASO 4 -->
+
+        <section class="paso" data-paso="4">
+
+          <div class="rejilla">
+
+            <div class="campo">
+              <label for="fuente">
+                Fuente de los datos
+                <span class="obligatorio">*</span>
+              </label>
+
+              <input
+                id="fuente"
+                type="text"
+                maxlength="220"
+                required
+                placeholder="Ej.: Registro de revisión de entregables"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="periodicidad">
+                Periodicidad
+                <span class="obligatorio">*</span>
+              </label>
+
+              <select id="periodicidad" required>
+                <option value="">Selecciona una opción</option>
+                <option>Semanal</option>
+                <option>Mensual</option>
+                <option>Trimestral</option>
+                <option>Semestral</option>
+                <option>Anual</option>
+                <option>Al cierre de cada actividad</option>
+                <option>Otra</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="responsableDatos">
+                Responsable de los datos
+                <span class="obligatorio">*</span>
+              </label>
+
+              <input
+                id="responsableDatos"
+                type="text"
+                maxlength="120"
+                required
+                placeholder="Cargo o función"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="responsableAnalisis">
+                Responsable del análisis
+                <span class="obligatorio">*</span>
+              </label>
+
+              <input
+                id="responsableAnalisis"
+                type="text"
+                maxlength="120"
+                required
+                placeholder="Cargo o función"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="tendencia">
+                Tendencia deseada
+                <span class="obligatorio">*</span>
+              </label>
+
+              <select id="tendencia" required>
+                <option value="">Selecciona una opción</option>
+                <option>Cuanto mayor, mejor</option>
+                <option>Cuanto menor, mejor</option>
+                <option>Valor objetivo</option>
+                <option>Intervalo aceptable</option>
+                <option>Solo seguimiento, sin tendencia</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="meta">
+                Meta
+              </label>
+
+              <input
+                id="meta"
+                type="text"
+                maxlength="100"
+                placeholder="Ej.: Igual o superior al 95 %"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="alerta">
+                Umbral de alerta
+              </label>
+
+              <input
+                id="alerta"
+                type="text"
+                maxlength="100"
+                placeholder="Ej.: Entre 90 % y menos de 95 %"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="critico">
+                Umbral crítico
+              </label>
+
+              <input
+                id="critico"
+                type="text"
+                maxlength="100"
+                placeholder="Ej.: Inferior al 90 %"
+              >
+            </div>
+
+            <div class="campo ancho-completo">
+              <label for="evidencias">
+                Registros o evidencias
+              </label>
+
+              <textarea
+                id="evidencias"
+                maxlength="450"
+                placeholder="Ej.: Informes de revisión, actas y registro de correcciones."
+              ></textarea>
+            </div>
+
+            <div class="campo ancho-completo">
+              <label for="destinatarios">
+                Destinatarios del resultado
+              </label>
+
+              <input
+                id="destinatarios"
+                type="text"
+                maxlength="220"
+                placeholder="Ej.: Responsable del proceso y comité de calidad"
+              >
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- PASO 5 -->
+
+        <section class="paso" data-paso="5">
+
+          <div class="aviso">
+            La herramienta comprueba la integridad básica de la definición.
+            La validación y aprobación final corresponde a la organización
+            que utilizará el indicador.
+          </div>
+
+          <div class="rejilla">
+
+            <fieldset class="ancho-completo">
+              <legend>Comprobaciones finales</legend>
+
+              <div class="comprobaciones">
+
+                <label class="comprobacion">
+                  <input
+                    type="checkbox"
+                    name="comprobacion"
+                    value="Mide un resultado concreto"
+                  >
+                  Mide un resultado concreto.
+                </label>
+
+                <label class="comprobacion">
+                  <input
+                    type="checkbox"
+                    name="comprobacion"
+                    value="Los datos están disponibles"
+                  >
+                  Los datos necesarios están disponibles.
+                </label>
+
+                <label class="comprobacion">
+                  <input
+                    type="checkbox"
+                    name="comprobacion"
+                    value="La periodicidad es viable"
+                  >
+                  La periodicidad de medición es viable.
+                </label>
+
+                <label class="comprobacion">
+                  <input
+                    type="checkbox"
+                    name="comprobacion"
+                    value="Permite tomar una decisión"
+                  >
+                  El resultado permite tomar una decisión o actuar.
+                </label>
+
+                <label class="comprobacion">
+                  <input
+                    type="checkbox"
+                    name="comprobacion"
+                    value="Las unidades son coherentes"
+                  >
+                  Los parámetros y las unidades son coherentes.
+                </label>
+
+              </div>
+            </fieldset>
+
+            <div class="campo ancho-completo">
+              <label for="limitaciones">
+                Riesgos, sesgos o limitaciones
+              </label>
+
+              <textarea
+                id="limitaciones"
+                maxlength="600"
+                placeholder="Ej.: El resultado depende de que las correcciones se registren de forma homogénea."
+              ></textarea>
+            </div>
+
+            <div class="campo">
+              <label for="version">
+                Versión
+              </label>
+
+              <input
+                id="version"
+                type="text"
+                maxlength="20"
+                value="1"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="fecha">
+                Fecha
+              </label>
+
+              <input
+                id="fecha"
+                type="date"
+              >
+            </div>
+
+          </div>
+
+        </section>
+
+        <div class="navegacion">
+
+          <button
+            class="boton boton-secundario oculto"
+            type="button"
+            id="anterior"
+          >
+            Anterior
+          </button>
+
+          <button
+            class="boton"
+            type="button"
+            id="siguiente"
+          >
+            Siguiente
+          </button>
+
+          <button
+            class="boton oculto"
+            type="submit"
+            id="generar"
+          >
+            Generar ficha
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+    <!-- RESULTADO -->
+
+    <section class="panel" id="resultado">
+
+      <h2>Ficha del indicador</h2>
+
+      <div class="estado" id="estado"></div>
+
+      <div class="ficha" id="ficha"></div>
+
+      <div class="acciones">
+
+        <button
+          class="boton"
+          type="button"
+          id="copiar"
+        >
+          Copiar ficha
+        </button>
+
+        <button
+          class="boton boton-secundario"
+          type="button"
+          id="imprimir"
+        >
+          Imprimir o guardar como PDF
+        </button>
+
+        <button
+          class="boton boton-secundario"
+          type="button"
+          id="editar"
+        >
+          Volver a editar
+        </button>
+
+        <button
+          class="boton boton-borrar"
+          type="button"
+          id="borrarInferior"
+        >
+          Crear otro indicador
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer>
+    NexoSIG · Herramienta orientativa para definir indicadores de calidad
+  </footer>
+
+  <script>
+    const formulario = document.getElementById("formulario");
+    const pasos = Array.from(document.querySelectorAll(".paso"));
+    const marcas = Array.from(document.querySelectorAll(".marca-paso"));
+
+    const anterior = document.getElementById("anterior");
+    const siguiente = document.getElementById("siguiente");
+    const generar = document.getElementById("generar");
+
+    const resultado = document.getElementById("resultado");
+    const ficha = document.getElementById("ficha");
+    const estado = document.getElementById("estado");
+
+    const operacion = document.getElementById("operacion");
+    const naturaleza = document.getElementById("naturaleza");
+    const fecha = document.getElementById("fecha");
+
+    let pasoActual = 1;
+
+    fecha.value = new Date().toISOString().slice(0, 10);
+
+    function mostrarPaso() {
+      pasos.forEach(function (paso) {
+        const numero = Number(paso.dataset.paso);
+
+        paso.classList.toggle(
+          "activo",
+          numero === pasoActual
+        );
+      });
+
+      marcas.forEach(function (marca) {
+        const numero = Number(marca.dataset.marca);
+
+        marca.classList.toggle(
+          "activa",
+          numero === pasoActual
+        );
+
+        marca.classList.toggle(
+          "completa",
+          numero < pasoActual
+        );
+      });
+
+      anterior.classList.toggle(
+        "oculto",
+        pasoActual === 1
+      );
+
+      siguiente.classList.toggle(
+        "oculto",
+        pasoActual === pasos.length
+      );
+
+      generar.classList.toggle(
+        "oculto",
+        pasoActual !== pasos.length
+      );
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    function borrarErrores(paso) {
+      paso.querySelectorAll(".texto-error").forEach(
+        function (mensaje) {
+          mensaje.remove();
+        }
+      );
+
+      paso.querySelectorAll(".campo-error").forEach(
+        function (campo) {
+          campo.classList.remove("campo-error");
+        }
+      );
+    }
+
+    function validarPaso(numero) {
+      const paso = document.querySelector(
+        '[data-paso="' + numero + '"]'
+      );
+
+      borrarErrores(paso);
+
+      let correcto = true;
+
+      paso.querySelectorAll("[required]").forEach(
+        function (campo) {
+
+          if (!String(campo.value).trim()) {
+            correcto = false;
+
+            campo.classList.add("campo-error");
+
+            const mensaje = document.createElement("span");
+
+            mensaje.className = "texto-error";
+            mensaje.textContent = "Completa este campo.";
+
+            campo.insertAdjacentElement(
+              "afterend",
+              mensaje
+            );
+          }
+        }
+      );
+
+      if (!correcto) {
+        const primerError =
+          paso.querySelector(".campo-error");
+
+        if (primerError) {
+          primerError.focus();
+        }
+      }
+
+      return correcto;
+    }
+
+    siguiente.addEventListener("click", function () {
+      if (!validarPaso(pasoActual)) {
+        return;
+      }
+
+      pasoActual += 1;
+      mostrarPaso();
+    });
+
+    anterior.addEventListener("click", function () {
+      pasoActual -= 1;
+      mostrarPaso();
+    });
+
+    function obtenerValor(id) {
+      const elemento = document.getElementById(id);
+
+      if (!elemento) {
+        return "No definido";
+      }
+
+      const contenido = elemento.value.trim();
+
+      return contenido || "No definido";
+    }
+
+    function proponerFormula() {
+      const tipoOperacion = operacion.value;
+
+      const numerador =
+        document.getElementById("numerador").value.trim()
+        || "Dato principal";
+
+      const denominador =
+        document.getElementById("denominador").value.trim()
+        || "Denominador";
+
+      const factor =
+        document.getElementById("factor").value.trim()
+        || "factor de normalización";
+
+      let formula = "";
+
+      if (tipoOperacion === "Recuento") {
+        formula = "Recuento de " + numerador;
+      }
+
+      if (tipoOperacion === "Suma") {
+        formula = "Suma de " + numerador;
+      }
+
+      if (tipoOperacion === "Media") {
+        formula =
+          "Suma de " + numerador
+          + " / número de observaciones válidas";
+      }
+
+      if (tipoOperacion === "Diferencia") {
+        formula =
+          numerador + " - " + denominador;
+      }
+
+      if (tipoOperacion === "Porcentaje") {
+        formula =
+          "(" + numerador
+          + " / " + denominador
+          + ") × 100";
+      }
+
+      if (tipoOperacion === "Ratio") {
+        formula =
+          numerador + " / " + denominador;
+      }
+
+      if (tipoOperacion === "Tasa normalizada") {
+        formula =
+          "(" + numerador
+          + " / " + denominador
+          + ") × " + factor;
+      }
+
+      if (
+        tipoOperacion !== "Fórmula personalizada"
+      ) {
+        document.getElementById("formula").value =
+          formula;
+      }
+    }
+
+    operacion.addEventListener(
+      "change",
+      proponerFormula
+    );
+
+    document.getElementById("numerador")
+      .addEventListener(
+        "input",
+        proponerFormula
+      );
+
+    document.getElementById("denominador")
+      .addEventListener(
+        "input",
+        proponerFormula
+      );
+
+    document.getElementById("factor")
+      .addEventListener(
+        "input",
+        proponerFormula
+      );
+
+    function protegerTexto(texto) {
+      return String(texto)
+        .replaceAll("&", "&")
+        .replaceAll("<", "<")
+        .replaceAll(">", ">")
+        .replaceAll('"', """)
+        .replaceAll("'", "'");
+    }
+
+    function crearFila(titulo, contenido) {
+      return `
+        <div class="fila-ficha">
+          <div class="titulo-fila">
+            ${protegerTexto(titulo)}
+          </div>
+
+          <div class="contenido-fila">
+            ${protegerTexto(contenido)}
+          </div>
+        </div>
+      `;
+    }
+
+    function evaluarDefinicion() {
+      const comprobacionesMarcadas =
+        document.querySelectorAll(
+          'input[name="comprobacion"]:checked'
+        ).length;
+
+      const camposClave = [
+        "nombre",
+        "proceso",
+        "tipo",
+        "finalidad",
+        "decision",
+        "alcance",
+        "definicion",
+        "operacion",
+        "unidadResultado",
+        "numerador",
+        "formula",
+        "fuente",
+        "periodicidad",
+        "responsableDatos",
+        "responsableAnalisis",
+        "tendencia"
+      ];
+
+      const camposCompletos =
+        camposClave.filter(
+          function (id) {
+            return document
+              .getElementById(id)
+              .value
+              .trim();
+          }
+        ).length;
+
+      const necesitaMeta =
+        naturaleza.value === "KPI";
+
+      const metaDefinida =
+        document
+          .getElementById("meta")
+          .value
+          .trim();
+
+      if (
+        camposCompletos === camposClave.length
+        && comprobacionesMarcadas === 5
+        && (!necesitaMeta || metaDefinida)
+      ) {
+        return {
+          texto: "Definición sólida",
+          clase: "estado-solido"
+        };
+      }
+
+      if (
+        camposCompletos >= 13
+        && comprobacionesMarcadas >= 3
+      ) {
+        return {
+          texto: "Requiere revisión",
+          clase: "estado-revision"
+        };
+      }
+
+      return {
+        texto: "Definición insuficiente",
+        clase: "estado-insuficiente"
+      };
+    }
+
+    formulario.addEventListener(
+      "submit",
+      function (evento) {
+
+        evento.preventDefault();
+
+        if (!validarPaso(5)) {
+          return;
+        }
+
+        const comprobaciones =
+          Array.from(
+            document.querySelectorAll(
+              'input[name="comprobacion"]:checked'
+            )
+          )
+          .map(function (elemento) {
+            return elemento.value;
+          })
+          .join("; ")
+          || "No confirmadas";
+
+        const parametros = [
+          "Dato principal: "
+            + obtenerValor("numerador")
+            + " ("
+            + obtenerValor("unidadNumerador")
+            + ")",
+
+          "Denominador: "
+            + obtenerValor("denominador")
+            + " ("
+            + obtenerValor("unidadDenominador")
+            + ")",
+
+          "Factor: "
+            + obtenerValor("factor"),
+
+          "Decimales: "
+            + obtenerValor("decimales")
+        ].join("\n");
+
+        const evaluacion = evaluarDefinicion();
+
+        estado.textContent = evaluacion.texto;
+
+        estado.className =
+          "estado " + evaluacion.clase;
+
+        ficha.innerHTML = [
+          crearFila(
+            "Nombre",
+            obtenerValor("nombre")
+          ),
+
+          crearFila(
+            "Código",
+            obtenerValor("codigo")
+          ),
+
+          crearFila(
+            "Proceso o actividad",
+            obtenerValor("proceso")
+          ),
+
+          crearFila(
+            "Tipo",
+            obtenerValor("tipo")
+            + " · "
+            + obtenerValor("naturaleza")
+          ),
+
+          crearFila(
+            "Finalidad",
+            obtenerValor("finalidad")
+          ),
+
+          crearFila(
+            "Decisión asociada",
+            obtenerValor("decision")
+          ),
+
+          crearFila(
+            "Alcance",
+            obtenerValor("alcance")
+          ),
+
+          crearFila(
+            "Definición operativa",
+            obtenerValor("definicion")
+          ),
+
+          crearFila(
+            "Exclusiones",
+            obtenerValor("exclusiones")
+          ),
+
+          crearFila(
+            "Operación",
+            obtenerValor("operacion")
+          ),
+
+          crearFila(
+            "Fórmula",
+            obtenerValor("formula")
+          ),
+
+          crearFila(
+            "Parámetros",
+            parametros
+          ),
+
+          crearFila(
+            "Unidad del resultado",
+            obtenerValor("unidadResultado")
+          ),
+
+          crearFila(
+            "Fuente de los datos",
+            obtenerValor("fuente")
+          ),
+
+          crearFila(
+            "Periodicidad",
+            obtenerValor("periodicidad")
+          ),
+
+          crearFila(
+            "Responsable de los datos",
+            obtenerValor("responsableDatos")
+          ),
+
+          crearFila(
+            "Responsable del análisis",
+            obtenerValor("responsableAnalisis")
+          ),
+
+          crearFila(
+            "Tendencia deseada",
+            obtenerValor("tendencia")
+          ),
+
+          crearFila(
+            "Meta",
+            obtenerValor("meta")
+          ),
+
+          crearFila(
+            "Umbral de alerta",
+            obtenerValor("alerta")
+          ),
+
+          crearFila(
+            "Umbral crítico",
+            obtenerValor("critico")
+          ),
+
+          crearFila(
+            "Registros o evidencias",
+            obtenerValor("evidencias")
+          ),
+
+          crearFila(
+            "Destinatarios",
+            obtenerValor("destinatarios")
+          ),
+
+          crearFila(
+            "Comprobaciones",
+            comprobaciones
+          ),
+
+          crearFila(
+            "Riesgos o limitaciones",
+            obtenerValor("limitaciones")
+          ),
+
+          crearFila(
+            "Versión y fecha",
+            "Versión "
+            + obtenerValor("version")
+            + " · "
+            + obtenerValor("fecha")
+          )
+        ].join("");
+
+        resultado.classList.add("visible");
+
+        resultado.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+    );
+
+    document.getElementById("copiar")
+      .addEventListener(
+        "click",
+        async function () {
+
+          const texto =
+            Array.from(
+              ficha.querySelectorAll(".fila-ficha")
+            )
+            .map(function (fila) {
+              return (
+                fila.children[0].innerText
+                + ": "
+                + fila.children[1].innerText
+              );
+            })
+            .join("\n");
+
+          try {
+            await navigator.clipboard.writeText(
+              "FICHA DE INDICADOR DE CALIDAD\n\n"
+              + texto
+            );
+
+            const boton =
+              document.getElementById("copiar");
+
+            boton.textContent = "Ficha copiada";
+
+            setTimeout(function () {
+              boton.textContent = "Copiar ficha";
+            }, 1800);
+
+          } catch (error) {
+            alert(
+              "No se pudo copiar automáticamente. "
+              + "Selecciona el contenido y cópialo manualmente."
+            );
+          }
+        }
+      );
+
+    document.getElementById("imprimir")
+      .addEventListener(
+        "click",
+        function () {
+          window.print();
+        }
+      );
+
+    document.getElementById("editar")
+      .addEventListener(
+        "click",
+        function () {
+          document
+            .getElementById("formularioPanel")
+            .scrollIntoView({
+              behavior: "smooth"
+            });
+        }
+      );
+
+    function reiniciar() {
+      const confirmar = window.confirm(
+        "¿Quieres borrar todos los datos y empezar de nuevo?"
+      );
+
+      if (!confirmar) {
+        return;
+      }
+
+      formulario.reset();
+
+      fecha.value =
+        new Date().toISOString().slice(0, 10);
+
+      document.getElementById("version").value =
+        "1";
+
+      document.getElementById("decimales").value =
+        "2";
+
+      resultado.classList.remove("visible");
+
+      ficha.innerHTML = "";
+
+      pasoActual = 1;
+
+      mostrarPaso();
+    }
+
+    document.getElementById("borrarSuperior")
+      .addEventListener(
+        "click",
+        reiniciar
+      );
+
+    document.getElementById("borrarInferior")
+      .addEventListener(
+        "click",
+        reiniciar
+      );
+
+    mostrarPaso();
+  </script>
+
+</body>
+</html>
